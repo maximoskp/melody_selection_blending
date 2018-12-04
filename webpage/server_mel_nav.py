@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, Response
+from flask import Flask, render_template, request, redirect, Response, jsonify
 import json
 import numpy as np
 import os
@@ -40,14 +40,16 @@ app = Flask(__name__)
 def index():
     return render_template('index.html')
 
-@app.route('/processjson', methods=['POST','GET'])
-def processjson():
-    print('---------------- request ---------------------: ', request)
-    data = request.get_data()
-    dat_json = json.loads(data)
-    # data = request.json
-    print('---------------- data ---------------------: ', dat_json['lala'])
-    return 'lololol'
+@app.route('/get_initial_data', methods=['POST','GET'])
+def get_initial_data():
+    # data = request.get_data()
+    # dat_json = json.loads(data)
+    tmp_json = {}
+    tmp_json['s_pca_1'] = s_pca_1.tolist()
+    tmp_json['s_pca_2'] = s_pca_2.tolist()
+    tmp_json['s_names_1'] = s_names_1
+    tmp_json['s_names_2'] = s_names_2
+    return jsonify(tmp_json)
 
 if __name__ == '__main__':
     print('--- --- --- main')

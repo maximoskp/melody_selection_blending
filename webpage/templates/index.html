@@ -6,29 +6,63 @@
 <script src="https://code.highcharts.com/highcharts.js"></script>
 <!-- <script src="https://code.highcharts.com/modules/exporting.js"></script> -->
 <script src="static/js/main.js"></script>
+<style>
+  .slidecontainer {
+      width: 80%;
+  }
+  
+  .slider {
+    -webkit-appearance: none;
+    height: 200px;
+    border-radius: 5px;
+    background: #ccc;
+    outline: none;
+    writing-mode: bt-lr; /* IE */
+    -webkit-appearance: slider-vertical;
+  }
+  
+  .slider:hover {
+      opacity: 1;
+  }
+  
+  .slider::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 25px;
+      height: 25px;
+      background: rgb(175, 173, 76);
+      cursor: pointer;
+  }
+  
+  .slider::-moz-range-thumb {
+      width: 25px;
+      height: 25px;
+      background: rgb(175, 173, 76);
+      cursor: pointer;
+  }
+  </style>
 <script>
   $(document).ready(function(){
-    initialise_chart();
-    var data2send = {'lala' : [0,1,2]};
-    console.log('Sending data:', data2send);
-    $.post( "http://127.0.0.1:8515/processjson", JSON.stringify(data2send), function(la){console.log(la)});
-    // $.post( "http://127.0.0.1:8515/processjson", data2send, function(la){console.log(la)});
-    // $.ajax({
-    //   url: 'json-example',
-    //   dataType: 'json',
-    //   data: data2send,
-		// 	type: 'POST',
-		// 	success: function(response){
-		// 		console.log('response: ', response);
-		// 	},
-		// 	error: function(error){
-		// 		console.log('error: ', error);
-		// 	}
-		// });
+    // $.post( "/get_data", JSON.stringify(data2send), function(la){console.log(la)});
+    $.post( "/get_initial_data", JSON.stringify({}), function(resp){
+      console.log(resp);
+      initialise_chart(resp['s_pca_1'], resp['s_pca_2'], resp['s_names_1'], resp['s_names_2']);
+    });
   });
 </script>
 </head>
 <body>
-    <div id="container" style="min-width: 310px; height: 400px; max-width: 800px; margin: 0 auto"></div>
+  <div style="display: flex; flex-direction: row; justify-content: center; align-items: center; width: 70%; padding-left: 20%">
+      <div style="float: right">
+          <input type="range" orient="vertical" min="0" max="1" value="0.5" step="0.01" class="slider" id="pieces_num" float="right" oninput="sliderChanged(this.value)" onchange="sliderChanged(this.value)">
+        </div>
+        <div id="container" style="min-width: 310px; height: 400px; max-width: 800px; margin: 0 auto"></div>
+  </div>
 </body>
+<script>
+  function sliderChanged(v){
+    console.log('v: ', v);
+    update_data_with_percentage(v);
+  }
+</script>
 </html>
