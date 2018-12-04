@@ -11,19 +11,20 @@
     initialise_chart();
     var data2send = {'lala' : [0,1,2]};
     console.log('Sending data:', data2send);
-    // $.post( "/json-example", data2send, function(la){console.log(la)});
-    $.ajax({
-      url: 'json-example',
-      dataType: 'json',
-      data: data2send,
-			type: 'POST',
-			success: function(response){
-				console.log('response: ', response);
-			},
-			error: function(error){
-				console.log('error: ', error);
-			}
-		});
+    $.post( "http://127.0.0.1:8515/processjson", JSON.stringify(data2send), function(la){console.log(la)});
+    // $.post( "http://127.0.0.1:8515/processjson", data2send, function(la){console.log(la)});
+    // $.ajax({
+    //   url: 'json-example',
+    //   dataType: 'json',
+    //   data: data2send,
+		// 	type: 'POST',
+		// 	success: function(response){
+		// 		console.log('response: ', response);
+		// 	},
+		// 	error: function(error){
+		// 		console.log('error: ', error);
+		// 	}
+		// });
   });
 </script>
 </head>

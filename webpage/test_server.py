@@ -35,11 +35,11 @@ def form_example():
 
 @app.route('/json-example', methods=['POST']) #GET requests will be blocked
 def json_example():
-    req_data = request.get_json()
+    req_data = request.get_data()
     print('received it _______________________________________________========================')
     print(' --------------req_data: ----------------', req_data)
 
     return 'lololol'
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', debug=True, port=8515) #run app in debug mode on port 5000
+    app.run(host='127.0.0.1', debug=True, port=8515) #run app in debug mode on port 5000

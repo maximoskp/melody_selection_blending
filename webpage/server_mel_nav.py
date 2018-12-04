@@ -43,10 +43,12 @@ def index():
 @app.route('/processjson', methods=['POST','GET'])
 def processjson():
     print('---------------- request ---------------------: ', request)
-    data = request.get_json()
-    print('---------------- data ---------------------: ', data['lala'])
-    return data['lala']
+    data = request.get_data()
+    dat_json = json.loads(data)
+    # data = request.json
+    print('---------------- data ---------------------: ', dat_json['lala'])
+    return 'lololol'
 
 if __name__ == '__main__':
     print('--- --- --- main')
-    app.run(host='0.0.0.0', port=8515, debug=True)
+    app.run(host='127.0.0.1', port=8515, debug=True)
