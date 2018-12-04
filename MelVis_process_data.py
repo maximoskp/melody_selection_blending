@@ -17,7 +17,7 @@ import CM_user_output_functions as uof
 import pickle
 import matplotlib.pyplot as plt
 
-remakedata = True
+remakedata = False
 test_plot = True
 
 if remakedata:
