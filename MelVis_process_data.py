@@ -14,10 +14,11 @@ import numpy as np
 from sklearn.decomposition import PCA
 import MBL_melody_features_functions as mff
 import CM_user_output_functions as uof
+import MBL_music_processing_functions as mpf
 import pickle
 import matplotlib.pyplot as plt
 
-remakedata = False
+remakedata = True
 test_plot = True
 
 if remakedata:
@@ -50,9 +51,21 @@ if remakedata:
             for ii in p.recurse():
                 if 'Instrument' in ii.classes:
                     ii.activeSite.replace(ii, m21.instrument.Piano())
+            # transpose
+            p_trans = mpf.neutral_transposition(p)
+            # fix lowest octave
+            p_fix = mpf.fix_lowest_octave(p_trans)
             # write to midi
-            uof.generate_midi( p, fileName=fileName.split('/')[-1].split('.')[0]+'.mid', destination=cwd+'/all_midis/' )
-            tmp_val = mff.get_features_of_stream( p )
+            uof.generate_midi( p_fix, fileName=fileName.split('/')[-1].split('.')[0]+'.mid', destination=cwd+'/all_midis/' )
+            # write also xml for visualisations
+            # make it from scratch to be visualisable
+            s = m21.stream.Stream()
+            s.insert(0,p_fix.parts[0])
+            s.insert(0, m21.metadata.Metadata())
+            s.metadata.title = fileName.split('/')[-1].split('.')[0]
+            s.metadata.composer = style_folders[i]
+            uof.generate_xml( s, fileName=cwd+'/all_xmls/'+fileName.split('/')[-1].split('.')[0]+'.xml', destination=cwd+'/all_xmls/' )
+            tmp_val = mff.get_features_of_stream( p_fix )
             tmp_feats.append( tmp_val )
             all_features.append( tmp_val )
         style_features.append( np.vstack( tmp_feats ) )
@@ -67,6 +80,8 @@ if remakedata:
     np_styles_idx = np.array( all_styles_idx )
     pca_1 = all_pca[ np_styles_idx == 0 , : ]
     pca_2 = all_pca[ np_styles_idx == 1 , : ]
+    features_1 = all_features_np[ np_styles_idx == 0 , : ]
+    features_2 = all_features_np[ np_styles_idx == 1 , : ]
     centr_1 = np.mean(pca_1, axis = 0)
     centr_2 = np.mean(pca_2, axis = 0)
     # distances
@@ -88,8 +103,10 @@ if remakedata:
     s_names_1 = [names_1[i] for i in sidx1]
     s_names_2 = [names_2[i] for i in sidx2]
     # keep sorted pcas
-    s_pca_1 = pca_1[ sidx1 ]
-    s_pca_2 = pca_2[ sidx2 ]
+    s_pca_1 = pca_1[ sidx1, : ]
+    s_pca_2 = pca_2[ sidx2, : ]
+    s_features_1 = features_1[ sidx1, : ]
+    s_features_2 = features_2[ sidx2, : ]
     
     with open('saved_data/all_names.pickle', 'wb') as handle:
         pickle.dump(all_names, handle, protocol=pickle.HIGHEST_PROTOCOL)
@@ -108,6 +125,10 @@ if remakedata:
         pickle.dump(s_pca_1, handle, protocol=pickle.HIGHEST_PROTOCOL)
     with open('saved_data/s_pca_2.pickle', 'wb') as handle:
         pickle.dump(s_pca_2, handle, protocol=pickle.HIGHEST_PROTOCOL)
+    with open('saved_data/s_features_1.pickle', 'wb') as handle:
+        pickle.dump(s_features_1, handle, protocol=pickle.HIGHEST_PROTOCOL)
+    with open('saved_data/s_features_2.pickle', 'wb') as handle:
+        pickle.dump(s_features_2, handle, protocol=pickle.HIGHEST_PROTOCOL)
     with open('saved_data/s_names_1.pickle', 'wb') as handle:
         pickle.dump(s_names_1, handle, protocol=pickle.HIGHEST_PROTOCOL)
     with open('saved_data/s_names_2.pickle', 'wb') as handle:
@@ -130,6 +151,10 @@ else:
         s_pca_1 = pickle.load(handle)
     with open('saved_data/s_pca_2.pickle', 'rb') as handle:
         s_pca_2 = pickle.load(handle)
+    with open('saved_data/s_features_1.pickle', 'rb') as handle:
+        s_features_1 = pickle.load(handle)
+    with open('saved_data/s_features_2.pickle', 'rb') as handle:
+        s_features_2 = pickle.load(handle)
     with open('saved_data/s_names_1.pickle', 'rb') as handle:
         s_names_1 = pickle.load(handle)
     with open('saved_data/s_names_2.pickle', 'rb') as handle:

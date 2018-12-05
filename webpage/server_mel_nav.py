@@ -26,6 +26,10 @@ with open('../saved_data/s_pca_1.pickle', 'rb') as handle:
     s_pca_1 = pickle.load(handle)
 with open('../saved_data/s_pca_2.pickle', 'rb') as handle:
     s_pca_2 = pickle.load(handle)
+with open('../saved_data/s_features_1.pickle', 'rb') as handle:
+    s_features_1 = pickle.load(handle)
+with open('../saved_data/s_features_2.pickle', 'rb') as handle:
+    s_features_2 = pickle.load(handle)
 with open('../saved_data/s_names_1.pickle', 'rb') as handle:
     s_names_1 = pickle.load(handle)
 with open('../saved_data/s_names_2.pickle', 'rb') as handle:
@@ -47,6 +51,8 @@ def get_initial_data():
     tmp_json = {}
     tmp_json['s_pca_1'] = s_pca_1.tolist()
     tmp_json['s_pca_2'] = s_pca_2.tolist()
+    tmp_json['s_features_1'] = s_features_1.tolist()
+    tmp_json['s_feaures_2'] = s_features_2.tolist()
     tmp_json['s_names_1'] = s_names_1
     tmp_json['s_names_2'] = s_names_2
     return jsonify(tmp_json)

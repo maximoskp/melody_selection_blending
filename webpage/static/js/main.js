@@ -11,7 +11,7 @@ var hc = []
 function initialise_chart(pca_1, pca_2, names_1, names_2){
     dat_1 = merge_pca_names(pca_1, names_1);
     static_dat_1 = JSON.parse(JSON.stringify(dat_1));
-    console.log('dat_1: ', dat_1);
+    // console.log('dat_1: ', dat_1);
     dat_2 = merge_pca_names(pca_2, names_2);
     static_dat_2 = JSON.parse(JSON.stringify(dat_2));
     hc = Highcharts.chart('container', {
@@ -19,7 +19,7 @@ function initialise_chart(pca_1, pca_2, names_1, names_2){
             type: 'scatter',
             zoomType: 'xy',
             width: 800,
-            height: 800
+            height: 400
         },
         title: {
             text: 'German and Han melodies'
@@ -80,6 +80,18 @@ function initialise_chart(pca_1, pca_2, names_1, names_2){
             events: {
                 click: function (event) {
                     console.log('event: ', event.point.name);
+                    var tmp_name = event.point.name.split(".")[0];
+                    // var osmd = new opensheetmusicdisplay.OpenSheetMusicDisplay("container_main");
+                    osmd.load('static/all_xmls/'+tmp_name+'.xml').then( function() {
+                        osmd.zoom = 0.5;
+                        osmd.render();
+                    });
+                    console.log('osmd: ', osmd);
+                    piece_name = 'static/all_midis/'+tmp_name+'.mid';
+                    MIDIjs.stop();
+                    if(event.shiftKey){
+                        MIDIjs.play('static/all_midis/'+tmp_name+'.mid'); 
+                    }
                     // console.log(
                     //     this.data + ' clicked\n' +
                     //     'Alt: ' + event.altKey + '\n' +
@@ -96,13 +108,18 @@ function initialise_chart(pca_1, pca_2, names_1, names_2){
             turboThreshold: 0,
             events: {
                 click: function (event) {
-                    console.log(
-                        this.name + ' clicked\n' +
-                        'Alt: ' + event.altKey + '\n' +
-                        'Control: ' + event.ctrlKey + '\n' +
-                        'Meta: ' + event.metaKey + '\n' +
-                        'Shift: ' + event.shiftKey
-                    );
+                    console.log('event: ', event.point.name);
+                    var tmp_name = event.point.name.split(".")[0];
+                    // var osmd = new opensheetmusicdisplay.OpenSheetMusicDisplay("container_main");
+                    osmd.load('static/all_xmls/'+tmp_name+'.xml').then( function() {
+                        osmd.zoom = 0.5;
+                        osmd.render();
+                    });
+                    piece_name = 'static/all_midis/'+tmp_name+'.mid';
+                    MIDIjs.stop();
+                    if(event.shiftKey){
+                        MIDIjs.play('static/all_midis/'+tmp_name+'.mid'); 
+                    }
                 }
             },
             name: 'Han',
@@ -117,15 +134,19 @@ function update_data_with_percentage(p){
     var new_dat_2 = [];
     var tmp_dat_1 = JSON.parse(JSON.stringify(static_dat_1));
     var tmp_dat_2 = JSON.parse(JSON.stringify(static_dat_2));
-    console.log('dat_1.length: ', tmp_dat_1.length);
-    console.log('p*dat_1.length: ', p*tmp_dat_1.length);
-    for (var i=0; i<p*tmp_dat_1.length; i++){
+    // var tmp_step_1 = (tmp_dat_1.length+p*1)/(1+tmp_dat_1.length*p);
+    var tmp_step_1 = tmp_dat_1.length + 1 - tmp_dat_1.length*Math.pow(p,0.02) + Math.random();
+    var tmp_step_2 = tmp_dat_2.length + 1 - tmp_dat_2.length*Math.pow(p,0.02) + Math.random();
+    // console.log('tmp_step_1: ', tmp_step_1);
+    for (var i=0; i<Math.max(1,p*tmp_dat_1.length); i+=parseInt( Math.ceil(tmp_step_1) ) ){
         new_dat_1.push( tmp_dat_1[i] );
     }
-    for (var i=0; i<p*tmp_dat_2.length; i++){
+    for (var i=0; i<Math.max(1,p*tmp_dat_2.length); i+=parseInt( Math.ceil(tmp_step_2) )){
         new_dat_2.push( tmp_dat_2[i] );
     }
+    // console.log('new_dat_1.length: ', new_dat_1.length);
     hc.series[0].setData(new_dat_1);
+    // console.log('hc.series[0].data.length: ', hc.series[0].data.length);
     hc.series[1].setData(new_dat_2);
 }
 
