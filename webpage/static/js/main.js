@@ -82,12 +82,11 @@ function initialise_chart(pca_1, pca_2, names_1, names_2){
                     console.log('event: ', event.point.name);
                     var tmp_name = event.point.name.split(".")[0];
                     // var osmd = new opensheetmusicdisplay.OpenSheetMusicDisplay("container_main");
-                    osmd.load('static/all_xmls/'+tmp_name+'.xml').then( function() {
-                        osmd.zoom = 0.5;
-                        osmd.render();
+                    osmd_german.load('static/all_xmls/'+tmp_name+'.xml').then( function() {
+                        osmd_german.zoom = 0.4;
+                        osmd_german.render();
                     });
-                    console.log('osmd: ', osmd);
-                    piece_name = 'static/all_midis/'+tmp_name+'.mid';
+                    piece_name_german = 'static/all_midis/'+tmp_name+'.mid';
                     MIDIjs.stop();
                     if(event.shiftKey){
                         MIDIjs.play('static/all_midis/'+tmp_name+'.mid'); 
@@ -111,11 +110,11 @@ function initialise_chart(pca_1, pca_2, names_1, names_2){
                     console.log('event: ', event.point.name);
                     var tmp_name = event.point.name.split(".")[0];
                     // var osmd = new opensheetmusicdisplay.OpenSheetMusicDisplay("container_main");
-                    osmd.load('static/all_xmls/'+tmp_name+'.xml').then( function() {
-                        osmd.zoom = 0.5;
-                        osmd.render();
+                    osmd_han.load('static/all_xmls/'+tmp_name+'.xml').then( function() {
+                        osmd_han.zoom = 0.4;
+                        osmd_han.render();
                     });
-                    piece_name = 'static/all_midis/'+tmp_name+'.mid';
+                    piece_name_han = 'static/all_midis/'+tmp_name+'.mid';
                     MIDIjs.stop();
                     if(event.shiftKey){
                         MIDIjs.play('static/all_midis/'+tmp_name+'.mid'); 

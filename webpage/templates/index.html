@@ -46,8 +46,12 @@
   </style>
 <script>
   console.log('-- lala0...');
-  var osmd = []
-  var piece_name = []
+  var osmd_german = []
+  var osmd_han = []
+  var osmd_blend = []
+  var piece_name_german = []
+  var piece_name_han = []
+  var piece_name_blend = []
   $(document).ready(function(){
     // $.post( "/get_data", JSON.stringify(data2send), function(la){console.log(la)});
     document.getElementById('pieces_num').value = 1.0;
@@ -55,35 +59,75 @@
       // console.log(resp);
       initialise_chart(resp['s_pca_1'], resp['s_pca_2'], resp['s_names_1'], resp['s_names_2']);
     });
-    osmd = new opensheetmusicdisplay.OpenSheetMusicDisplay("container_main");
-    osmd.load("/static/all_xmls/han1161.xml").then( function() { 
-      osmd.zoom = 0.5;
-      osmd.render();
-    });
+    osmd_german = new opensheetmusicdisplay.OpenSheetMusicDisplay("container_german");
+    osmd_han = new opensheetmusicdisplay.OpenSheetMusicDisplay("container_han");
+    osmd_blend = new opensheetmusicdisplay.OpenSheetMusicDisplay("container_blend");
+    // osmd.load("/static/all_xmls/han1161.xml").then( function() { 
+    //   osmd.zoom = 0.5;
+    //   osmd.render();
+    // });
   });
 </script>
 </head>
 <body>
   <div style="display: flex; flex-direction: row; justify-content: center; align-items: center; width: 70%; padding-left: 20%">
       <div style="float: right">
-          <input type="range" orient="vertical" min="0" max="1" value="0.5" step="0.01" class="slider" id="pieces_num" float="right" oninput="sliderChanged(this.value)" onchange="sliderChanged(this.value)">
-        </div>
-        <div id="container" style="min-width: 310px; height: 400px; max-width: 800px; margin: 0 auto"></div>
+        <input type="range" orient="vertical" min="0" max="1" value="0.5" step="0.01" class="slider" id="pieces_num" float="right" oninput="sliderChanged(this.value)" onchange="sliderChanged(this.value)">
+      </div>
+      <div id="container" style="min-width: 310px; height: 400px; max-width: 800px; margin: 0 auto"></div>
   </div>
-  <div div style="display: flex; flex-direction: row; justify-content: center; align-items: center; width: 70%; padding-left: 20%">
-      <button onclick="playMidi()">Play</button>
-    <button onclick="stopMidi()">Stop</button>
+  <div style="display: flex; flex-direction: row; justify-content: center; vertical-align: top; align-items: flex-start; width: 100%;">
+    <div style="display: block; flex-direction: column; justify-content: flex-start; vertical-align: top; align-items: flex-start; width: 400px">
+      <div style="display: flex; flex-direction: row; justify-content: center; align-items: centre; width: 400px">
+        <button onclick="playMidi('german')">Play</button>
+        <button onclick="stopMidi()">Stop</button>
+      </div>
+      <div id="container_german"></div>
+    </div>
+    <div style="display: block; flex-direction: column; justify-content: flex-start;; vertical-align: top; align-items: flex-start; width: 400px">
+      <div style="display: flex; flex-direction: row; justify-content: center; align-items: centre; width: 400px;">
+        <button onclick="playMidi('blend')">Play</button>
+        <button onclick="stopMidi()">Stop</button>
+      </div>
+      <div id="container_blend"></div>
+    </div>
+    <div style="display: block; flex-direction: column; justify-content: flex-start; vertical-align: top; align-items: flex-start; width: 400px">
+      <div style="display: flex; flex-direction: row; justify-content: center; align-items: center; width: 400px;">
+        <button onclick="playMidi('han')">Play</button>
+        <button onclick="stopMidi()">Stop</button>
+      </div>
+      <div id="container_han"></div>
+    </div>
   </div>
-  <div id="container_main"></div>
 </body>
 <script>
   function sliderChanged(v){
     // console.log('v: ', v);
     update_data_with_percentage(v);
   }
-  function playMidi(){
+  function playMidi(s){
     MIDIjs.stop();
-    MIDIjs.play(piece_name);
+    if(s == 'german'){
+      if(piece_name_german == null){
+        alert('Select a German melody first!');
+      }else{
+        MIDIjs.play(piece_name_german);
+      }
+    }else if(s == 'han'){
+      if(piece_name_han == null){
+        alert('Select a Han melody first!');
+      }else{
+        MIDIjs.play(piece_name_han);
+      }
+    }else if(s == 'blend'){
+      if(piece_name_blend == null){
+        alert('Please blend two melodies first!');
+      }else{
+        MIDIjs.play(piece_name_blend);
+      }
+    }else{
+      console.log('unknown play option');
+    }
   }
   function stopMidi(){
     MIDIjs.stop();
