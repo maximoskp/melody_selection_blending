@@ -80,6 +80,8 @@ function initialise_chart(pca_1, pca_2, names_1, names_2){
             events: {
                 click: function (event) {
                     console.log('event: ', event.point.name);
+                    idx1 = names1.indexOf(event.point.name);
+                    update_f1();
                     var tmp_name = event.point.name.split(".")[0];
                     // var osmd = new opensheetmusicdisplay.OpenSheetMusicDisplay("container_main");
                     osmd_german.load('static/all_xmls/'+tmp_name+'.xml').then( function() {
@@ -108,6 +110,8 @@ function initialise_chart(pca_1, pca_2, names_1, names_2){
             events: {
                 click: function (event) {
                     console.log('event: ', event.point.name);
+                    idx2 = names2.indexOf(event.point.name);
+                    update_f2();
                     var tmp_name = event.point.name.split(".")[0];
                     // var osmd = new opensheetmusicdisplay.OpenSheetMusicDisplay("container_main");
                     osmd_han.load('static/all_xmls/'+tmp_name+'.xml').then( function() {
