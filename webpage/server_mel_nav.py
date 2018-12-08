@@ -124,6 +124,8 @@ def blend():
     # make markov target - which remains the same during all simulations
     target_markov = ( dm + hm )/2.0
     evoSession = evo.EvoSession( deut_file, han_file, target_features, target_markov, nPop=nPop, nGen=nGens, print_gens=True )
+    # write to midi files
+    fef.write_stream_to_midi(evoSession.best_individual.stream, appendToPath=base_name, fileName='bl_'+deut_name+han_name+'.mid')
 
     tmp_json = {}
     tmp_json['blended'] = evoSession.best_individual.features.tolist()
