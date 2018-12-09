@@ -51,16 +51,20 @@
   var osmd_blend = [];
   var piece_name_german = [];
   var piece_name_han = [];
-  var piece_name_blend = [];
   var all_f1 = []; // features of all German
   var all_f2 = []; // features of all Han
   var f1 = [0,0,0,0]; // features of input 1 only
   var f2 = [0,0,0,0]; // features of input 2 only
   var target = [0,0,0,0];
+  var blended_features = [0,0,0,0];
+  var bl_path = [];
+  var bl_name_mid = [];
+  var bl_name_xml = [];
   var names1 = [];
   var names2 = [];
   var idx1 = [];
   var idx2 = [];
+  var progress_check_function = []
   $(document).ready(function(){
     // $.post( "/get_data", JSON.stringify(data2send), function(la){console.log(la)});
     document.getElementById('pieces_num').value = 1.0;
@@ -87,10 +91,10 @@
       <div style="float: right">
         <input type="range" orient="vertical" min="0" max="1" value="0.5" step="0.01" class="slider" id="pieces_num" float="right" oninput="sliderChanged(this.value)" onchange="sliderChanged(this.value)">
       </div>
-      <div id="container" style="min-width: 310px; height: 400px; max-width: 800px; margin: 0 auto"></div>
+      <div id="container" style="min-width: 310px; height: 600px; max-width: 800px; margin: 0 auto"></div>
   </div>
   <div style="display: flex; flex-direction: row; justify-content: center; vertical-align: top; align-items: flex-start; width: 100%;">
-    <div style="display: block; flex-direction: column; justify-content: flex-start; vertical-align: top; align-items: flex-start; width: 400px">
+    <div style="display: block; flex-direction: column; justify-content: flex-start; vertical-align: top; align-items: flex-start; width: 400px; border: 1px solid black;">
       <div style="display: flex; flex-direction: row; justify-content: center; align-items: centre; width: 400px">
         <button onclick="playMidi('german')">Play</button>
         <button onclick="stopMidi()">Stop</button>
@@ -118,7 +122,7 @@
       </div>
       <div id="container_german"></div>
     </div>
-    <div style="display: block; flex-direction: column; justify-content: flex-start;; vertical-align: top; align-items: flex-start; width: 400px">
+    <div style="display: block; flex-direction: column; justify-content: flex-start;; vertical-align: top; align-items: flex-start; width: 400px; border: 1px solid black;">
       <div style="display: flex; flex-direction: row; justify-content: center; align-items: centre; width: 400px;">
         <button onclick="playMidi('blend')">Play</button>
         <button onclick="stopMidi()">Stop</button>
@@ -143,7 +147,7 @@
       </div>
       <div id="container_blend"></div>
     </div>
-    <div style="display: block; flex-direction: column; justify-content: flex-start; vertical-align: top; align-items: flex-start; width: 400px">
+    <div style="display: block; flex-direction: column; justify-content: flex-start; vertical-align: top; align-items: flex-start; width: 400px; border: 1px solid black;">
       <div style="display: flex; flex-direction: row; justify-content: center; align-items: center; width: 400px;">
         <button onclick="playMidi('han')">Play</button>
         <button onclick="stopMidi()">Stop</button>
@@ -193,10 +197,10 @@
         MIDIjs.play(piece_name_han);
       }
     }else if(s == 'blend'){
-      if(piece_name_blend == null){
+      if(bl_name_mid.length == 0){
         alert('Please blend two melodies first!');
       }else{
-        MIDIjs.play(piece_name_blend);
+        MIDIjs.play(bl_path+bl_name_mid);
       }
     }else{
       console.log('unknown play option');
@@ -207,11 +211,44 @@
   }
   function blend(){
     console.log('blending');
-    // make target features
-    make_target();
-    $.post( "/blend", JSON.stringify({target: target, name1: 'static/all_krn/deut/'+names1[idx1], name2: 'static/all_krn/han/'+names2[idx2]}), function(resp){
-      console.log(resp);
-    });
+    if(idx1.length == 0 && idx2.length == 0){
+      alert('Please select two melodies first!');
+    }else if(idx1.length == 0){
+      alert('Please select a German (red) melody!');
+    }else if(idx2.length == 0){
+      alert('Please select a Han (blue) melody!');
+    }else{
+      // make target features
+      make_target();
+      // start_checking_progress();
+      $.post( "/blend", JSON.stringify({target: target, name1: 'static/all_xmls/'+names1[idx1].split(".")[0]+'.xml', name2: 'static/all_xmls/'+names2[idx2].split(".")[0]+'.xml'}), function(resp){
+        console.log(resp);
+        // stop checking progress
+        // clearInterval(progress_check_function);
+        blended_features = resp['bl_features'];
+        bl_path = resp['bl_path'];
+        bl_name_mid = resp['bl_name_mid'];
+        bl_name_xml = resp['bl_name_xml'];
+        show_blended_features();
+        osmd_blend.load(bl_path+bl_name_xml).then( function() {
+            osmd_blend.zoom = 0.4;
+            osmd_blend.render();
+        });
+      });
+    }
+  }
+  // function start_checking_progress(){
+  //   var progress_check_function = setInterval(function(){
+  //     $.post( "/get_evo_progress", JSON.stringify({}), function(resp){
+  //       console.log('progress: ', resp)
+  //     }, 250);
+  //   });
+  // }
+  function show_blended_features(){
+    document.getElementById('bl_f1').innerHTML = "f1: " + String(blended_features[0].toFixed(2));
+    document.getElementById('bl_f2').innerHTML = "f2: " + String(blended_features[1].toFixed(2));
+    document.getElementById('bl_f3').innerHTML = "f3: " + String(blended_features[2].toFixed(2));
+    document.getElementById('bl_f4').innerHTML = "f4: " + String(blended_features[3].toFixed(2));
   }
   function make_target(){
     if(document.getElementById('in1_r_dens').checked){

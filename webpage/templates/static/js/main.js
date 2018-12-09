@@ -18,8 +18,8 @@ function initialise_chart(pca_1, pca_2, names_1, names_2){
         chart: {
             type: 'scatter',
             zoomType: 'xy',
-            width: 800,
-            height: 400
+            width: 600,
+            height: 600
         },
         title: {
             text: 'German and Han melodies'

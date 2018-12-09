@@ -79,13 +79,13 @@ class EvoSession:
         # EVOLUTION ------------------------------------------------- EVOLUTION
         if print_gens:
             print('applying evolution')
-        currGen = 0
+        self.currGen = 0
         self.bestFitness = np.min( self.prevFits )
-        while currGen <= self.nGen and self.bestFitness > 0.0000001:
-            currGen += 1
+        while self.currGen <= self.nGen and self.bestFitness > 0.0000001:
+            self.currGen += 1
             self.nextPop = self.evolution_round()
             if print_gens:
-                print('generation: ', currGen, ' - best fitness: ', self.bestFitness)
+                print('generation: ', self.currGen, ' - best fitness: ', self.bestFitness)
     # end constructor
     def initialise_from_parents(self):
         ''' initiliase with 50% exact copies of each parent '''

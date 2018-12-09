@@ -22,7 +22,7 @@ def write_stream_to_midi(s, filePath=os.getcwd()+"/", appendToPath="", fileName=
 # end write_stream_to_midi
 
 # XML NOT WORKING
-def write_stream_to_xml(s, filePath=os.getcwd()+"/", appendToPath="", fileName='test_midi_export.mid'):
+def write_stream_to_xml(s, filePath=os.getcwd()+"/", appendToPath="", fileName='test_midi_export.xml'):
     mf = m21.musicxml.m21ToXml.GeneralObjectExporter(s)
     mfText = mf.parse().decode('utf-8')
     f = open(filePath + appendToPath + fileName, 'w')

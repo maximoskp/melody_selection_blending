@@ -14,8 +14,11 @@ import MBL_music_processing_functions as mpf
 import MBL_melody_features_functions as mff
 import MBL_evolution as evo
 import MP_file_export_functions as fef
+import CM_user_output_functions as uof
 
 APP_ROOT = os.path.dirname(os.path.abspath(__file__))
+evoSession = []
+available = True
 
 with open('../saved_data/all_names.pickle', 'rb') as handle:
     all_names = pickle.load(handle)
@@ -65,8 +68,22 @@ def get_initial_data():
     tmp_json['s_names_2'] = s_names_2
     return jsonify(tmp_json)
 
+# need some kind of threading to work
+# https://stackoverflow.com/questions/24251898/flask-app-update-progress-bar-while-function-runs
+# @app.route('/get_evo_progress')
+# def get_evo_progress():
+#     print('getting progress: ', evoSession.currGen/evoSession.nGen)
+#     return evoSession.currGen/evoSession.nGen
+
+# @app.route('/get_availability')
+# def get_availability():
+#     print('getting availability')
+#     return available
+
 @app.route('/blend', methods=['POST'])
 def blend():
+    # make unavailable
+    available = False
     data = request.get_data()
     dat_json = json.loads(data)
     print('dat_json: ', dat_json);
@@ -78,8 +95,10 @@ def blend():
     request_code = datetime.datetime.now().strftime("%I_%M_%S%p_%b_%d_%Y")
     session_folder = deut_name+'_'+han_name+'_'+request_code
     print('APP_ROOT: ', APP_ROOT)
-    os.mkdir(APP_ROOT+'/results/'+session_folder)
-    output = APP_ROOT+'/results/'+session_folder+'/'
+    os.mkdir(APP_ROOT+'/static/results/'+session_folder)
+    output_1 = APP_ROOT+'/static/results/'+session_folder+'/'
+    os.mkdir(APP_ROOT+'/templates/static/results/'+session_folder)
+    output_2 = APP_ROOT+'/templates/static/results/'+session_folder+'/'
     # evo constants
     nGens = 20
     nPop = 20
@@ -115,20 +134,44 @@ def blend():
     hm = mff.compute_melody_markov_transitions(h_fix)
 
     # make base folder based on names
-    base_name = 'results/'+session_folder+'/'
+    base_name_1 = 'static/results/'+session_folder+'/'
+    base_name_2 = 'templates/static/results/'+session_folder+'/'
 
     # first write inputs to midi
-    fef.write_stream_to_midi(ds, appendToPath=base_name, fileName=deut_name+'.mid')
-    fef.write_stream_to_midi(hs, appendToPath=base_name, fileName=han_name+'.mid')
+    fef.write_stream_to_midi(ds, appendToPath=base_name_1, fileName=deut_name+'.mid')
+    fef.write_stream_to_midi(hs, appendToPath=base_name_1, fileName=han_name+'.mid')
+    fef.write_stream_to_midi(ds, appendToPath=base_name_2, fileName=deut_name+'.mid')
+    fef.write_stream_to_midi(hs, appendToPath=base_name_2, fileName=han_name+'.mid')
 
     # make markov target - which remains the same during all simulations
     target_markov = ( dm + hm )/2.0
     evoSession = evo.EvoSession( deut_file, han_file, target_features, target_markov, nPop=nPop, nGen=nGens, print_gens=True )
+    bl_name_mid = 'bl_'+deut_name+han_name+'.mid'
+    bl_name_xml = 'bl_'+deut_name+han_name+'.xml'
+    # include name in stream
+    evoSession.best_individual.stream.insert(0, m21.metadata.Metadata())
+    evoSession.best_individual.stream.metadata.title = 'bl_'+deut_name+'_'+han_name
+    evoSession.best_individual.stream.metadata.composer = 'Mel Blender'
     # write to midi files
-    fef.write_stream_to_midi(evoSession.best_individual.stream, appendToPath=base_name, fileName='bl_'+deut_name+han_name+'.mid')
+    print('writing midi')
+    fef.write_stream_to_midi(evoSession.best_individual.stream, appendToPath=base_name_1, fileName=bl_name_mid)
+    fef.write_stream_to_midi(evoSession.best_individual.stream, appendToPath=base_name_2, fileName=bl_name_mid)
+    # and xml for showing
+    # fef.write_stream_to_xml(evoSession.best_individual.stream, appendToPath=base_name_2, fileName=bl_name_xml)
+    # fef.write_stream_to_xml(evoSession.best_individual.stream, appendToPath=base_name_2, fileName=bl_name_xml)
+    print('writing xml1')
+    uof.generate_xml( evoSession.best_individual.stream, fileName=output_1+bl_name_xml, destination=output_1+bl_name_xml )
+    print('writing xml2')
+    uof.generate_xml( evoSession.best_individual.stream, fileName=output_2+bl_name_xml, destination=output_2+bl_name_xml )
 
+    print('sending response')
     tmp_json = {}
-    tmp_json['blended'] = evoSession.best_individual.features.tolist()
+    tmp_json['bl_features'] = evoSession.best_individual.features.tolist()
+    tmp_json['bl_path'] = base_name_1
+    tmp_json['bl_name_mid'] = bl_name_mid
+    tmp_json['bl_name_xml'] = bl_name_xml
+    # return to available
+    available = True
     return jsonify(tmp_json)
 
 if __name__ == '__main__':
