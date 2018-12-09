@@ -85,7 +85,7 @@ def blend():
     # make unavailable
     available = False
     data = request.get_data()
-    dat_json = json.loads(data)
+    dat_json = json.loads(data.decode('utf-8'))
     print('dat_json: ', dat_json);
     deut_file = dat_json['name1']
     han_file = dat_json['name2']
